@@ -1,0 +1,30 @@
+---
+- name: accept firewall for ntp
+  firewalld:
+    service: ntp
+    permanent: yes
+    state: enabled
+  notify: restart firewalld.service
+
+- name: Check the file exists
+  stat:
+    path: /etc/chrony.conf.org
+  register: chrony_conf_org
+
+- name: Backing up original chrony.conf
+  copy:
+    src: /etc/chrony.conf
+    dest: /etc/chrony.conf.org
+    remote_src: yes
+  when: chrony_conf_org.stat.exists == false
+
+- name: deploy chrony.conf
+  template:
+    src: ./roles/timeset/templates/chrony.conf
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart chronyd.service
+
+

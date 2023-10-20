@@ -1,0 +1,17 @@
+ 
+  <rule id="100999" level="0">
+    <if_level>1</if_level>
+    <srcip>127.0.0.1</srcip>
+    <srcip>35.175.133.236</srcip>
+    <description>whitelist IP addresses</description>
+  </rule>
+
+  <!-- Check waf detection rules -->
+
+  <rule id="209999" level="6">
+    <if_sid>31100,31101,31108</if_sid>
+    <url>^/waf/detection/test</url>
+    <description WAF detection test</description>
+    <group>test,</group>
+  </rule>
+ 

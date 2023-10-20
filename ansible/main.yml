@@ -1,0 +1,27 @@
+- hosts: all,localhost
+
+  tasks:
+    - name: Set timezone to Asia/Tokyo
+      timezone:
+        name: Asia/Tokyo
+
+- hosts: localhost
+  become : yes
+
+  roles:
+    - timeset
+
+- hosts: WEB
+  become: yes
+
+  roles:
+    - web
+
+
+- hosts: WAF
+  become: yes
+
+  roles:
+    - reverse_proxy
+    - ossec
+    - crt

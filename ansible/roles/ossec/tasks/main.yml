@@ -1,0 +1,107 @@
+---
+- name: Add Yum necessary packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - "zlib-devel"
+    - "pcre2-devel"
+    - "make"
+    - "gcc"
+    - "sqlite-devel"
+    - "openssl-devel"
+    - "libevent-devel"
+    - "systemd-devel"
+
+- name: Check the file exists
+  stat:
+    path: /tmp/ossec-hids-{{ version }}
+  register: ossec_hids
+
+#- name: End task if the file exists
+#  meta: end_host
+#  when: ossec_hids.stat.exists == true
+
+- name: Get and unarchive ossec-hids file
+  unarchive:
+    src: https://github.com/ossec/ossec-hids/archive/{{ version }}.tar.gz
+    dest: /tmp
+    remote_src: yes
+  when: ossec_hids.stat.exists == true
+
+- name: Copy preloaded-vars.conf
+  template:
+    src: preloaded-vars.conf
+    dest: /tmp/ossec-hids-{{ version }}/etc/preloaded-vars.conf
+
+- name: Execute Installer Script
+  command: "bash /tmp/ossec-hids-{{ version }}/install.sh"
+
+- name: Edit ossec.conf
+  lineinfile:
+    path: /var/ossec/etc/ossec.conf
+    regexp: '^\s+<logall>'
+    insertafter: '</email_notification>$'
+    line: "    <logall>yes</logall>"
+
+- name: Copy add_rules.txt
+  template:
+    src: add_rules.txt
+    dest: /tmp/add_rules.txt
+
+- name: Register var "add_rules"
+  command: cat /tmp/add_rules.txt
+  register: add_rules
+
+- name: Custom local_rules.xml
+  blockinfile:
+    path: /var/ossec/rules/local_rules.xml
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    insertbefore: "^</group> <!-- SYSLOG,LOCAL -->$"
+    block: |
+      - "{{ add_rules.stdout }}"
+
+- name: modify local_rules.xml 1
+  replace:
+    path: /var/ossec/rules/local_rules.xml
+    regexp: '^- \"'
+    replace: ''
+
+- name: modify local_rules.xml 2
+  replace:
+    path: /var/ossec/rules/local_rules.xml
+    regexp: '^ \"$'
+    replace: ''
+
+- name: Copy edit_decoder.txt
+  template:
+    src: edit_decoder.txt
+    dest: /tmp/edit_decoder.txt
+
+- name: Register var "edit_decoder"
+  command: cat /tmp/edit_decoder.txt
+  register: edit_decoder
+
+- name: Custom decoder.xml
+  blockinfile:
+    path: /var/ossec/etc/decoder.xml
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    insertbefore: "^<decoder name=\"web-accesslog\">$"
+    block: |
+      - "{{ edit_decoder.stdout }}"
+
+- name: modify decoder.xml 1
+  replace:
+    path: /var/ossec/etc/decoder.xml
+    regexp: '^- \"'
+    replace: ''
+
+- name: modify decoder.xml 2
+  replace:
+    path: /var/ossec/etc/decoder.xml
+    regexp: '^ \"$'
+    replace: ''
+
+- name: Start OSSEC
+  shell: /var/ossec/bin/ossec-control restart
+  become: yes

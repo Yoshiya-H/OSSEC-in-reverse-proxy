@@ -1,0 +1,16 @@
+---
+- name: Install Apache
+  yum:
+    name: httpd
+    state: latest
+
+- name: Copy httpd.conf
+  template:
+    src: httpd.conf
+    dest: /etc/httpd/conf/httpd.conf
+
+- name: Apache起動
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes

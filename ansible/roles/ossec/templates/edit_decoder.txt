@@ -1,0 +1,18 @@
+ 
+<decoder name="web-accesslog-edit">
+  <type>web-log</type>
+  <prematch_pcre2>^\d+\.\d+\.\d+\.\d+ \S+ \S+ \[\S+ \S\d+\] "\w+ </prematch_pcre2>
+  <pcre2>^(\d+\.\d+\.\d+\.\d+) \S+ (\S+) \[\S+ \S\d+\] "(\w+) (.+) HTTP\S+ (\d+) |</pcre2>
+  <pcre2>^(\d+\.\d+\.\d+\.\d+) \S+ (\S+) \[\S+ \S\d+\] "(\w+)\s+(.+)\s+HTTP\S+\s+(\d+)\s+|</pcre2>
+  <pcre2>^(\d+\.\d+\.\d+\.\d+) \S+ (\S+) \[\S+ \S\d+\] "(\w+)\s+(.+)"\s+(\d+)\s+</pcre2>
+  <order>srcip, srcuser, action, url, id</order>
+</decoder>
+
+<decoder name="web-accesslog-no-method">
+  <type>web-log</type>
+  <prematch_pcre2>^\d+\.\d+\.\d+\.\d+ \S+ \S+ \[\S+ \S\d+\] "\w+|^::ffff:\d+.\d+.\d+.\d+ \S+ \S+ \[\S+ \S\d+\] "\w+</prematch_pcre2>
+  <pcre2>^(\d+\.\d+\.\d+\.\d+) \S+ (\S+) \[\S+ \S\d+\] "(.+) HTTP\S+ (\d+) |</pcre2>
+  <pcre2>^(\d+\.\d+\.\d+\.\d+) \S+ (\S+) \[\S+ \S\d+\] "(\S+)\s+(\d+)\s+</pcre2>
+  <order>srcip, srcuser, url, id</order>
+</decoder>
+ 
