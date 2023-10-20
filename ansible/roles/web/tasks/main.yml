@@ -9,7 +9,7 @@
     src: httpd.conf
     dest: /etc/httpd/conf/httpd.conf
 
-- name: Apache起動
+- name: start Apache
   service:
     name: httpd
     state: restarted
