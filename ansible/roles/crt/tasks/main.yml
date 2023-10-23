@@ -49,9 +49,6 @@
   snap:
     name: core
 
-#- name: Install snap core
-#  command: "snap install core"
-
 - name: Refresh snap core
   command: "snap refresh core"
 
