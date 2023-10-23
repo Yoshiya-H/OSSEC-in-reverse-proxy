@@ -18,10 +18,6 @@
     path: /tmp/ossec-hids-{{ version }}
   register: ossec_hids
 
-#- name: End task if the file exists
-#  meta: end_host
-#  when: ossec_hids.stat.exists == true
-
 - name: Get and unarchive ossec-hids file
   unarchive:
     src: https://github.com/ossec/ossec-hids/archive/{{ version }}.tar.gz
